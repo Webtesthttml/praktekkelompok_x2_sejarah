@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Random Kid — Teori Nusantara Modern</title>
+<style>
+:root{
+  --paper:#f7f0df;
+  --paper2:#fffaf0;
+  --ink:#1a1714;
+  --muted:#4a443b;
+  --line:#1a1714;
+  --red:#ff6b5f;
+  --yellow:#ffd45c;
+  --blue:#67b7ff;
+  --green:#78d59b;
+  --purple:#b99cff;
+  --shadow:8px 10px 0 rgba(37,34,30,.14);
+  --shadow-sm:4px 5px 0 rgba(37,34,30,.13);
+  --radius:24px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  user-select:none;
+}
+button,input{font:inherit}
+button{cursor:pointer}
+
+.app{position:relative;width:100vw;height:100vh;overflow:hidden;background:var(--paper)}
+.deck{
+  position:absolute;inset:0;
+  display:flex;width:900%;height:100%;
+  transform:translate3d(0,0,0);
+  transition:transform .68s cubic-bezier(.2,.83,.2,1);
+  will-change:transform;
+}
+.deck.fast{transition-duration:.34s}
+.slide{
+  width:11.111111%;height:100%;flex:0 0 11.111111%;
+  position:relative;overflow:hidden;
+  padding:clamp(28px,5vw,64px);
+  display:flex;align-items:center;justify-content:center;
+  background:var(--paper);
+}
+.slide::before{
+  content:"";position:absolute;inset:0;z-index:-3;
+  background:
+    repeating-linear-gradient(0deg,rgba(37,34,30,.025) 0,rgba(37,34,30,.025) 1px,transparent 1px,transparent 5px),
+    repeating-linear-gradient(90deg,rgba(37,34,30,.018) 0,rgba(37,34,30,.018) 1px,transparent 1px,transparent 7px);
+  pointer-events:none;
+}
+.slide:nth-child(odd){--tilt:-1deg}
+.slide:nth-child(even){--tilt:1deg}
+
+/* tiny top navigation UI */
+.chrome{
+  position:fixed;top:15px;left:18px;right:18px;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  pointer-events:none;
+}
+.pill{
+  pointer-events:auto;
+  padding:8px 12px;border:2px solid var(--line);border-radius:999px;
+  background:var(--paper2);box-shadow:var(--shadow-sm);
+  font-size:11px;font-weight:950;letter-spacing:.09em;text-transform:uppercase;
+}
+.counter{display:flex;gap:7px;align-items:center}
+.progress{position:fixed;left:0;right:0;bottom:0;height:7px;border-top:2px solid var(--line);background:#eadfc8;z-index:100}
+.progress i{display:block;height:100%;width:11.111%;background:var(--yellow);transition:width .55s ease}
+.nav{
+  position:fixed;right:20px;bottom:18px;z-index:105;display:flex;gap:8px
+}
+.nav button{
+  width:46px;height:46px;border:2px solid var(--line);border-radius:16px;
+  background:var(--paper2);box-shadow:var(--shadow-sm);font-weight:950
+}
+.nav button:hover{transform:translate(-2px,-2px);box-shadow:6px 7px 0 rgba(37,34,30,.14)}
+.nav button:disabled{opacity:.35;transform:none;box-shadow:var(--shadow-sm);cursor:not-allowed}
+.keyboard-hint{
+  position:fixed;left:19px;bottom:18px;z-index:105;
+  font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;color:#6f675a
+}
+
+/* ========================================= */
+/* FIX: PENJELASAN DIPERJELAS & DIPERTEBAL   */
+/* ========================================= */
+.wrap{width:min(1180px,100%);margin:auto; position: relative; z-index: 10;}
+.eyebrow{font-size:11px;letter-spacing:.18em;font-weight:1000;text-transform:uppercase;color:var(--muted)}
+h1,h2,h3,p{margin:0}
+h1{font-size:clamp(48px,7vw,98px);line-height:.88;letter-spacing:-.06em; font-weight: 900;}
+h2{font-size:clamp(39px,5.3vw,72px);line-height:.92;letter-spacing:-.055em; font-weight: 900;}
+
+/* Penjelasan & Teks Dibuat Tebal */
+.lead{margin-top:18px;max-width:680px;font-size:clamp(17px,1.9vw,25px);line-height:1.35;color:var(--ink); font-weight: 700;}
+.cover-sub{margin-top:21px;font-size:20px;color:var(--ink);max-width:600px;line-height:1.4; font-weight: 700;}
+.fact span, .card p, .artifact p, .gcard p {font-weight: 600; font-size: 13px; color: var(--ink); line-height: 1.5;}
+.list-item {font-weight: 600; font-size: 14px; color: var(--ink);}
+.member-head p {max-width:400px; color:var(--ink); font-size:14px; line-height:1.45; font-weight: 600;}
+.callout{margin-top:22px;padding:14px 15px;background:#fff;border:2px solid var(--line);box-shadow:var(--shadow-sm);font-size:14px;line-height:1.45; font-weight: 600; color: var(--ink);}
+.caveat{margin-top:15px;padding:12px;border:2px dashed var(--line);font-size:11px;line-height:1.48;color:var(--ink);background:#fcf5df; font-weight: 600;}
+.finale-note{margin:23px auto 0;max-width:750px;font-size:14px;line-height:1.55;color:var(--ink); font-weight: 600;}
+.note .body{padding:13px;font-size:12px;line-height:1.55;color:var(--ink);border-top:2px solid var(--line); font-weight: 600;}
+
+/* ========================================= */
+/* GIMIK INTERAKTIF: MATERI MEMBESAR DI HOVER*/
+/* ========================================= */
+.member, .list-item, .fact, .gcard, .artifact, .t2, .ribbon, .callout, .card {
+  transition: scale 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+  position: relative;
+}
+/* Kartu, Anggota, Artefak, Fakta membesar lebih signifikan saat disorot */
+.member:hover, .fact:hover, .gcard:hover, .artifact:hover, .ribbon:hover, .callout:hover, .card:hover {
+  scale: 1.08; /* Diperbesar ukurannya */
+  box-shadow: 15px 18px 0 rgba(37,34,30,.2);
+  z-index: 50; 
+}
+/* Teks list membesar dari kiri agar rata */
+.list-item:hover, .t2:hover {
+  scale: 1.06;
+  transform-origin: left center;
+}
+
+.highlight{position:relative;display:inline-block}
+.highlight::after{
+  content:"";position:absolute;left:-2%;right:-2%;bottom:3px;height:.22em;z-index:-1;
+  background:var(--yellow);transform:rotate(-1deg)
+}
+.paper-card{
+  background:var(--paper2);border:2px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)
+}
+.tape{
+  position:absolute;width:94px;height:25px;background:rgba(235,202,117,.72);
+  border:1px solid rgba(37,34,30,.1);box-shadow:0 2px 3px rgba(0,0,0,.05)
+}
+.doodle{position:absolute;pointer-events:none;opacity:.38}
+.star{font-size:50px;line-height:1}
+.scribble{
+  width:90px;height:35px;border-top:4px solid var(--line);border-radius:50%;
+  transform:rotate(-8deg)
+}
+
+/* ========================================= */
+/* MEME DI LAPISAN BAWAH + DI TEPI           */
+/* ========================================= */
+.meme {
+  position:absolute;
+  padding:12px 14px 10px;
+  background:#fff; border:2px solid var(--line); border-radius:15px;
+  box-shadow:5px 6px 0 rgba(37,34,30,.16);font-size:11px;font-weight:1000;
+  letter-spacing:.07em;text-transform:uppercase;text-align:center;
+  width: 190px;
+  z-index: 2; 
+}
+.cover, .member-page, .puzzle, .two-col, .genetic, .flores, .conclusion, .end {
+  position: relative; z-index: 10;
+}
+.meme img {
+  width: 100%; height: auto; border-radius: 8px; display: block; margin: 0 auto;
+}
+.meme::before{content:"MEME";display:block;font-size:9px;opacity:.44;margin-bottom:6px}
+.meme.a{transform:rotate(-5deg)} .meme.b{transform:rotate(4deg)} .meme.c{transform:rotate(-2deg)}
+
+/* KUNCI BINGKAI FOTO, LOGO, DAN ARTIFAK */
+.emblem-inner, .photo, .gpic, .art-img {
+  position: relative; overflow: hidden; padding: 0 !important;
+}
+.emblem-inner img, .photo img, .gpic img, .art-img img {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+}
+.photo img, .gpic img, .art-img img { object-fit: cover; }
+.emblem-inner img { object-fit: contain; }
+
+/* KUNCI GAMBAR PETA & HOMO FLORESIENSIS */
+.map > img, .flores-visual > img {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;
+}
+.map-text.c img { max-height: 80px; width: auto; display: block; }
+
+.note{
+  margin-top:14px;padding:0;border:2px solid var(--line);border-radius:16px;overflow:hidden;background:#fffef8;
+  position: relative; z-index: 50; 
+}
+.note summary{padding:10px 13px;font-size:10px;font-weight:1000;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;background:#f0e7d1}
+
+/* entrance */
+.reveal{opacity:0;transform:translateY(18px) rotate(var(--tilt,0));transition:.55s cubic-bezier(.2,.8,.2,1)}
+.active .reveal{opacity:1;transform:none}
+.d1{transition-delay:.06s}.d2{transition-delay:.12s}.d3{transition-delay:.18s}.d4{transition-delay:.24s}
+
+/* slide 1 */
+.cover{ width:min(1100px,100%);display:grid;grid-template-columns:1fr .82fr;gap:6vw;align-items:center }
+.cover-left{position:relative}
+.group-tag{
+  display:inline-flex;align-items:center;gap:8px;margin-bottom:18px;
+  padding:8px 11px;border:2px solid var(--line);border-radius:999px;background:var(--yellow);box-shadow:var(--shadow-sm);
+  font-size:11px;font-weight:1000;letter-spacing:.1em;text-transform:uppercase
+}
+.cover-name{
+  margin-top:31px;display:inline-block;padding:13px 16px;background:#fff;border:2px solid var(--line);
+  box-shadow:var(--shadow-sm);font-size:14px;font-weight:1000;transform:rotate(-1.5deg)
+}
+.emblem{
+  height:min(62vh,550px);min-height:370px;display:grid;place-items:center;
+  border:3px solid var(--line);background:#ece1c8;box-shadow:12px 14px 0 rgba(37,34,30,.15);position:relative
+}
+.emblem-inner{
+  width:65%;aspect-ratio:1;border:4px dashed var(--line);border-radius:31% 69% 55% 45%/57% 40% 60% 43%;
+  background:#fff9eb;transform:rotate(-5deg);
+}
+.m1{right:-26px;top:34px;background:#fff4a6}.m2{left:-30px;bottom:30px;background:#d4ecff}.m3{right:4%;bottom:-22px;background:#d6f0dd}
+.cover-doodle{left:-8%;top:48%;font-size:72px;color:#e58c83;transform:rotate(-12deg)}
+
+/* slide 2 members */
+.member-page{width:min(1180px,100%);align-self:center}
+.member-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:24px}
+.members{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.member{
+  position:relative;padding:10px 10px 14px;background:#fffef9;border:2px solid var(--line);
+  box-shadow:var(--shadow-sm);border-radius:14px
+}
+.member:nth-child(2){transform:rotate(1.7deg);background:#fff6f0}.member:nth-child(3){transform:rotate(-1.3deg);background:#f1f8ff}.member:nth-child(4){transform:rotate(1deg);background:#fffbe7}.member:nth-child(5){transform:rotate(-1.6deg);background:#f0fff5}.member:nth-child(6){transform:rotate(1.2deg);background:#f6f0ff}
+.photo{
+  aspect-ratio:4/5;border:2px solid var(--line);border-radius:9px;
+  background:repeating-linear-gradient(135deg,#ece3d3 0 10px,#f6efe2 10px 20px);
+}
+.member-name{font-size:12px;font-weight:1000;text-transform:uppercase;margin-top:10px}
+.member-role{font-size:10px;color:var(--ink);margin-top:3px; font-weight:600;}
+.member .pin{position:absolute;left:50%;top:-9px;transform:translateX(-50%);width:13px;height:13px;border-radius:50%;background:var(--red);border:2px solid var(--line); z-index:10;}
+.member-page .note{margin-top:20px}
+
+/* content slides */
+.two-col{display:grid;grid-template-columns:1.02fr .98fr;gap:4.5vw;align-items:center;width:min(1180px,100%)}
+.content-copy{max-width:590px; position:relative; z-index:10;}
+.cards4{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:27px}
+.card{
+  padding:18px;background:#fffef9;border:2px solid var(--line);border-radius:20px;box-shadow:var(--shadow-sm);
+  min-height:152px;position:relative
+}
+.card h3{font-size:20px;margin-bottom:8px}
+.card .mini{display:inline-block;padding:5px 7px;border:2px solid var(--line);border-radius:8px;font-size:9px;font-weight:1000;margin-bottom:12px;background:var(--yellow)}
+.card:nth-child(2) .mini{background:var(--blue)}.card:nth-child(3) .mini{background:var(--green)}.card:nth-child(4) .mini{background:var(--purple)}
+.big-placeholder{
+  position:relative;min-height:450px;border:3px dashed var(--line);background:#eee5d2;box-shadow:10px 11px 0 rgba(37,34,30,.10);
+  display:grid;place-items:center;text-align:center;padding:40px;overflow:hidden
+}
+.big-placeholder::before,.big-placeholder::after{content:"";position:absolute;border:2px solid rgba(37,34,30,.15);border-radius:50%}
+.big-placeholder::before{width:74%;height:74%}.big-placeholder::after{width:55%;height:55%}
+.placeholder-label{font-size:12px;font-weight:1000;letter-spacing:.15em;z-index:1;max-width:260px}
+.small-caption{position:absolute;bottom:13px;left:14px;font-size:9px;font-weight:900;letter-spacing:.11em;color:#777062}
+
+/* slide 3 puzzle */
+.puzzle{display:grid;grid-template-columns:.8fr 1.2fr;gap:4vw;align-items:center;width:min(1160px,100%)}
+.puzzle-board{
+  min-height:495px;position:relative;border:3px solid var(--line);background:#eee4cf;box-shadow:var(--shadow);
+  overflow:hidden
+}
+.piece{
+  position:absolute;width:185px;height:132px;padding:15px;border:3px solid var(--line);
+  border-radius:22px;box-shadow:var(--shadow-sm);font-weight:1000;text-transform:uppercase;letter-spacing:.05em;
+  display:flex;align-items:end
+}
+.piece:nth-child(1){left:5%;top:10%;background:#ffd45c;transform:rotate(-7deg)}
+.piece:nth-child(2){right:5%;top:15%;background:#9dd2ff;transform:rotate(6deg)}
+.piece:nth-child(3){left:11%;bottom:8%;background:#8fddb0;transform:rotate(5deg)}
+.piece:nth-child(4){right:12%;bottom:7%;background:#c4adff;transform:rotate(-5deg)}
+.result{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-2deg);
+  width:290px;padding:25px;background:#fff;border:3px solid var(--line);box-shadow:var(--shadow);
+  text-align:center
+}
+.result small{font-size:10px;font-weight:1000;letter-spacing:.14em}
+.result b{display:block;font-size:24px;line-height:1.1;margin-top:10px}
+.puzzle-copy .list{margin-top:26px;display:grid;gap:10px}
+.list-item{display:flex;gap:10px;align-items:center;}
+.num{width:30px;height:30px;border:2px solid var(--line);display:grid;place-items:center;border-radius:50%;background:#fff;font-weight:1000;flex:0 0 auto}
+
+/* slide 4 geology */
+.facts-stack{display:grid;gap:12px;margin-top:28px}
+.fact{
+  padding:16px 17px;border:2px solid var(--line);border-radius:17px;background:#fffef8;box-shadow:var(--shadow-sm)
+}
+.fact b{display:block;font-size:16px;margin-bottom:5px; font-weight:900;}
+.map{
+  min-height:510px;position:relative;border:3px solid var(--line);background:#e8dfcf;box-shadow:var(--shadow);
+  padding: 0; overflow:hidden;
+}
+.map .sea{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 24px,rgba(103,183,255,.12) 24px 26px);opacity:.75}
+.map .land1,.map .land2{
+  position:absolute;background:#b3d59b;border:3px solid var(--line);box-shadow:5px 6px 0 rgba(37,34,30,.1)
+}
+.land1{width:49%;height:46%;left:5%;top:12%;border-radius:35% 58% 48% 30%/35% 45% 55% 65%;transform:rotate(-8deg)}
+.land2{width:37%;height:29%;right:10%;bottom:16%;border-radius:54% 30% 49% 35%;transform:rotate(9deg)}
+.migration-line{position:absolute;width:48%;height:5px;background:var(--red);left:21%;top:59%;transform:rotate(-20deg);border-radius:99px}
+.migration-line::after{content:"";position:absolute;right:-5px;top:-6px;border-left:15px solid var(--red);border-top:8px solid transparent;border-bottom:8px solid transparent}
+.wallace-line{position:absolute;top:9%;bottom:9%;left:64%;border-left:4px dashed var(--line);transform:rotate(7deg)}
+.map-text{position:absolute;padding:7px 9px;border:2px solid var(--line);background:#fff;font-size:9px;font-weight:1000;letter-spacing:.08em; z-index:10;}
+.map-text.a{left:9%;top:7%}.map-text.b{right:9%;top:24%}.map-text.c{right:4%;top:6%;background:var(--yellow); overflow:hidden; padding: 2px;}
+
+/* slide 5 genetics */
+.genetic{width:min(1180px,100%);text-align:center; position:relative; z-index:10;}
+.grow{display:flex;align-items:stretch;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:32px}
+.gcard{width:210px;padding:11px;background:#fff;border:2px solid var(--line);box-shadow:var(--shadow-sm);transform:rotate(var(--r,0deg))}
+.gcard:nth-child(1){--r:-1.3deg}.gcard:nth-child(2){--r:1.5deg}.gcard:nth-child(3){--r:-1deg}
+.gpic{height:190px;border:2px dashed var(--line);background:#f2eadb;}
+.gcard h3{font-size:16px;margin:11px 2px 4px; font-weight:900;}
+.plus{font-size:35px;font-weight:1000;align-self:center;color:#6e675c}
+.arrow-big{align-self:center;font-size:30px;font-weight:1000}
+.modern{
+  max-width:640px;margin:27px auto 0;padding:17px 20px;border:3px solid var(--line);
+  background:var(--green);box-shadow:var(--shadow);transform:rotate(-1deg)
+}
+.modern small{font-size:9px;font-weight:1000;letter-spacing:.13em}.modern b{display:block;margin-top:6px;font-size:22px}
+
+/* slide 6 culture */
+.artifacts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px; position:relative; z-index:10;}
+.artifact{padding:13px 13px 16px;background:#fffef9;border:2px solid var(--line);box-shadow:var(--shadow-sm)}
+.artifact:nth-child(1){transform:rotate(-1deg)}.artifact:nth-child(2){transform:rotate(1.1deg)}.artifact:nth-child(3){transform:rotate(-.8deg)}
+.art-img{height:250px;border:2px dashed var(--line);background:#f0e8d8;}
+.artifact h3{font-size:18px;margin-top:12px; font-weight:900;}
+.tiny-tag{display:inline-block;margin-top:9px;padding:4px 7px;border:2px solid var(--line);border-radius:7px;background:var(--yellow);font-size:9px;font-weight:1000}
+
+/* slide 7 flores */
+.flores{display:grid;grid-template-columns:.95fr 1.05fr;gap:5vw;align-items:center;width:min(1160px,100%); position:relative; z-index:10;}
+.flores-visual{
+  min-height:535px;border:3px solid var(--line);background:#dff0e1;box-shadow:var(--shadow);position:relative;overflow:hidden
+}
+.body{
+  position:absolute;left:50%;bottom:-6%;transform:translateX(-50%);width:45%;height:76%;background:#725b4d;
+  border:4px solid var(--line);border-radius:46% 46% 19% 19%; z-index:1;
+}
+.head{
+  position:absolute;left:50%;top:17%;transform:translateX(-50%);width:27%;aspect-ratio:1;border:4px solid var(--line);border-radius:48%;background:#937867; z-index:1;
+}
+.size-arrow{position:absolute;left:9%;top:18%;height:66%;border-left:3px dashed var(--line); z-index:2;}
+.size-arrow::before,.size-arrow::after{content:"";position:absolute;left:-8px;border-left:6px solid transparent;border-right:6px solid transparent}
+.size-arrow::before{top:-5px;border-bottom:11px solid var(--line)}.size-arrow::after{bottom:-5px;border-top:11px solid var(--line)}
+.flores-label{position:absolute;left:17px;top:17px;padding:7px 8px;border:2px solid var(--line);background:#fff;font-size:9px;font-weight:1000; z-index:2;}
+.timeline2{display:grid;gap:10px;margin-top:25px}
+.t2{display:grid;grid-template-columns:100px 1fr;gap:12px;align-items:center}
+.t2 span{font-size:10px;font-weight:1000;text-transform:uppercase;letter-spacing:.08em}
+.bar{height:10px;background:#e5dccb;border:2px solid var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--yellow)}
+
+/* slide 8 conclusion */
+.conclusion{width:min(1120px,100%);display:grid;grid-template-columns:1fr .92fr;gap:5vw;align-items:center; position:relative; z-index:10;}
+.theory-ribbons{display:grid;gap:11px;margin-top:25px}
+.ribbon{padding:15px 17px;border:2px solid var(--line);box-shadow:var(--shadow-sm);font-size:14px;font-weight:900;position:relative;background:#fff}
+.ribbon:nth-child(1){background:var(--yellow);transform:rotate(-1deg)}.ribbon:nth-child(2){background:var(--blue);transform:rotate(1deg)}.ribbon:nth-child(3){background:var(--green);transform:rotate(-.7deg)}
+.conclusion-box{padding:28px;background:#fffef8;border:3px solid var(--line);box-shadow:var(--shadow);text-align:center}
+.conclusion-box small{font-size:10px;font-weight:1000;letter-spacing:.15em}.conclusion-box b{display:block;font-size:32px;line-height:1.02;margin-top:11px}
+
+/* slide 9 closing */
+.end{ width:min(1100px,100%);text-align:center;position:relative; z-index:10; }
+.end-card{
+  display:inline-block;padding:35px 42px 38px;background:#fffef9;border:3px solid var(--line);
+  box-shadow:14px 15px 0 rgba(37,34,30,.15);transform:rotate(-1deg);position:relative
+}
+.end h2{font-size:clamp(50px,8vw,100px)}
+.end .thanks{font-size:17px;color:var(--ink); font-weight: 600; line-height:1.45;margin-top:16px}
+.end-actions{margin-top:25px;display:flex;justify-content:center;gap:11px;flex-wrap:wrap}
+.end-btn{
+  padding:12px 16px;border:2px solid var(--line);background:var(--yellow);box-shadow:var(--shadow-sm);
+  font-weight:1000;border-radius:14px
+}
+.end-btn.secondary{background:#fff}
+.finale-meme{position:absolute;right:-74px;top:-35px;background:#d9efff;}
+.finale-meme img { max-width: 150px; }
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:200}
+.confetti i{position:absolute;width:10px;height:15px;top:-30px;border:1px solid rgba(37,34,30,.2);animation:fall 1800ms cubic-bezier(.15,.8,.2,1) forwards}
+@keyframes fall{from{transform:translateY(0) rotate(0);opacity:1}to{transform:translateY(110vh) rotate(700deg);opacity:0}}
+
+/* responsive */
+@media(max-width:1000px){
+  .cover,.two-col,.puzzle,.flores,.conclusion{grid-template-columns:1fr}
+  .members{grid-template-columns:repeat(3,1fr)}
+  .emblem{min-height:300px;height:40vh}
+  .big-placeholder,.map,.flores-visual{min-height:280px}
+  .artifacts{grid-template-columns:repeat(3,1fr);gap:8px}
+}
+@media(max-width:700px){
+  .slide{padding:23px}
+  h1{font-size:clamp(43px,13vw,74px)}
+  h2{font-size:clamp(35px,10vw,58px)}
+  .members{grid-template-columns:repeat(2,1fr);gap:8px}
+  .member:nth-child(n){transform:none}
+  .artifacts{grid-template-columns:1fr}
+  .artifact{display:grid;grid-template-columns:125px 1fr;column-gap:11px}.artifact .art-img{height:120px;grid-row:span 2}.artifact .tiny-tag{display:none}
+  .cards4{gap:8px}.card{padding:13px;min-height:125px}.card h3{font-size:16px}
+  .meme{width:130px;font-size:9px}.m2{left:2px}.m1{right:0}
+  .keyboard-hint{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="chrome">
+    <div class="pill">THE RANDOM KID · X 2</div>
+    <div class="counter pill"><b id="num">01</b><span>/</span><span>09</span></div>
+  </div>
+
+  <main class="deck" id="deck">
+    <!-- 1 OPENING -->
+    <section class="slide" data-color="yellow">
+      <div class="cover">
+        <div class="cover-left">
+          <div class="group-tag reveal d1">SEJARAH · KELAS X 2</div>
+          <div class="eyebrow reveal d1">Presentasi Kelompok</div>
+          <h1 class="reveal d2">Menyatukan Kepingan <span class="highlight">Sejarah</span></h1>
+          <p class="cover-sub reveal d3">Teori Sintesis Nenek Moyang Indonesia — migrasi, adaptasi, dan evolusi manusia di Nusantara.</p>
+          <div class="cover-name reveal d4">KELOMPOK “THE RANDOM KID”</div>
+        </div>
+        <div class="emblem reveal d4">
+          <div class="emblem-inner">
+             <img src="download (6).jpg" alt="Logo Kelompok">
+          </div>
+          <div class="tape" style="left:-16px;top:70px;transform:rotate(-9deg)"></div>
+          <div class="tape" style="right:-14px;bottom:88px;transform:rotate(11deg)"></div>
+        </div>
+      </div>
+      <div class="meme a" style="left:2%;bottom:5%"><img src="___ Clark.jpg" alt="Meme"></div>
+      <div class="meme b" style="right:2%;bottom:5%"><img src="ijntmpil.jpg" alt="Meme"></div>
+      <div class="meme c" style="right:2%;top:10%;background:#ffe0dd"><img src="download (10).jpg" alt="Meme"></div>
+      <div class="doodle cover-doodle">✦</div>
+    </section>
+
+    <!-- 2 INTRO MEMBERS -->
+    <section class="slide">
+      <div class="member-page">
+        <div class="member-head">
+          <div>
+            <div class="eyebrow reveal d1">Perkenalan · Slide 02</div>
+            <h2 class="reveal d2">Kenalan dulu dengan <span class="highlight">The Random Kid.</span></h2>
+          </div>
+          <p class="reveal d3">Anggota kelompok kami yang bekerja di balik presentasi ini.</p>
+        </div>
+        <div class="members">
+          <article class="member reveal d1">
+            <span class="pin"></span>
+            <div class="photo"><img src="Alexander.jpg" alt="Foto"></div>
+            <div class="member-name">Justin Alexander</div>
+            <div class="member-role">Developer / Desain</div>
+          </article>
+          <article class="member reveal d1">
+            <span class="pin"></span>
+            <div class="photo"><img src="john.jpeg" alt="Foto"></div>
+            <div class="member-name">John Stevanus</div>
+            <div class="member-role">Materi Geologi</div>
+          </article>
+          <article class="member reveal d2">
+            <span class="pin"></span>
+            <div class="photo"><img src="sadew.jpg" alt="Foto"></div>
+            <div class="member-name">Wahyusadewa</div>
+            <div class="member-role">Materi Genetik</div>
+          </article>
+          <article class="member reveal d2">
+            <span class="pin"></span>
+            <div class="photo"><img src="risky.jpeg" alt="Foto"></div>
+            <div class="member-name">Risky Arbian</div>
+            <div class="member-role">Materi Arkeologi</div>
+          </article>
+          <article class="member reveal d3">
+            <span class="pin"></span>
+            <div class="photo"><img src="dimaz.jpeg" alt="Foto"></div>
+            <div class="member-name">Dimaz</div>
+            <div class="member-role">Pembicara / Fosil</div>
+          </article>
+          <article class="member reveal d3">
+            <span class="pin"></span>
+            <div class="photo"><img src="broklin.jpeg" alt="Foto"></div>
+            <div class="member-name">Brockliyn</div>
+            <div class="member-role">Pembicara</div>
+          </article>
+        </div>
+        <details class="note reveal d4">
+          <summary>Catatan Pembicara</summary>
+          <div class="body">Perkenalkan nama anggota, lalu sebutkan pembagian tugas secara singkat. Slide ini sengaja tenang agar audiens fokus mengenal kelompok sebelum masuk materi.</div>
+        </details>
+      </div>
+      <div class="meme a" style="left:2%;top:12%"><img src="sugoi (@PelatihKasuari) on X.jpg" alt="Meme"></div>
+      <div class="meme b" style="right:2%;bottom:5%;background:#d6f0ff"><img src="meme.jpg" alt="Meme"></div>
+      <div class="meme c" style="right:2%;top:12%;background:#ddf6e5"><img src="download (11).jpg" alt="Meme"></div>
+    </section>
+
+    <!-- 3 SLIDE 1 (RE-DEFINISI) -->
+    <section class="slide">
+      <div class="puzzle">
+        <div class="puzzle-copy">
+          <div class="eyebrow reveal d1">Materi 01 · Teori Nusantara Modern</div>
+          <h2 class="reveal d2">Alam Sebagai<br><span class="highlight">Pembentuk Utama.</span></h2>
+          <p class="lead reveal d3">Nusantara bukanlah daratan kosong yang sekadar dilewati, melainkan subjek aktif yang merombak identitas pengembara purba.</p>
+          <div class="list">
+            <div class="list-item reveal d1"><span class="num">01</span><span><b>Bukan Titik Singgah:</b> Identitas genetik dan budaya pengembara purba dibentuk 100% secara unik di dalam kepulauan ini.</span></div>
+            <div class="list-item reveal d2"><span class="num">02</span><span><b>Re-Definisi "Pribumi":</b> Nenek moyang kita tidak tiba-tiba muncul dari tanah, melainkan hasil tempaan mutlak dari iklim dan geologi lokal.</span></div>
+            <div class="list-item reveal d3"><span class="num">03</span><span><b>Kawah Candradimuka Evolusi:</b> Berbagai gelombang migrasi (Taiwan, Yunnan, Afrika) sepenuhnya dilebur menjadi satu identitas.</span></div>
+          </div>
+        </div>
+        <div class="puzzle-board reveal d4">
+          <div class="piece">AFRIKA</div><div class="piece">TAIWAN</div><div class="piece">YUNNAN</div><div class="piece">NUSANTARA</div>
+          <div class="result"><small>DIRANGKAI MENJADI</small><b>TEORI<br>NUSANTARA</b></div>
+        </div>
+      </div>
+      <div class="meme a" style="left:2%;bottom:5%"><img src="бляяяяяяя.jpg" alt="Meme"></div>
+      <div class="meme b" style="right:2%;top:12%;background:#fff0a6"><img src="💎⬅️.jpg" alt="Meme"></div>
+      <div class="meme c" style="right:2%;bottom:5%;background:#d9f5e3"><img src="Computadora.jpg" alt="Meme"></div>
+      <details class="note reveal d4" style="position:absolute;left:6%;bottom:7%;max-width:480px">
+        <summary>Catatan Pembicara</summary>
+        <div class="body">Teori Nusantara tidak berusaha menolak fakta bahwa ada migrasi dari luar. Sebaliknya, teori ini menegaskan bahwa dari mana pun asal mereka, mereka baru benar-benar menjadi "Nenek Moyang Bangsa Indonesia" setelah masuk dan diproses oleh alam Nusantara. Sejarah kita terlalu kompleks untuk sekadar membahas rute migrasi.</div>
+      </details>
+    </section>
+
+    <!-- 4 SLIDE 2 (GEOLOGI) -->
+    <section class="slide">
+      <div class="two-col">
+        <div class="map reveal d2">
+          <img src="sundaland.jpg" alt="Peta Sundaland dan Wallacea">
+          <div class="map-text c" style="right:4%;top:6%;background:var(--yellow); overflow:hidden; padding: 2px;">
+             <img src="peta-insert.png" alt="Insert Map">
+          </div>
+        </div>
+        <div class="content-copy">
+          <div class="eyebrow reveal d1">Materi 02 · Bukti Geologi Nusantara</div>
+          <h2 class="reveal d2">Tuan Rumah <span class="highlight">Prasejarah.</span></h2>
+          <div class="facts-stack">
+            <div class="fact reveal d1"><b>Absennya Dinosaurus Darat</b><span>Ketiadaan fosil hewan darat raksasa membuktikan daratan Nusantara berawal dari dasar laut, menepis mitos manusia yang "lahir dari tanah".</span></div>
+            <div class="fact reveal d2"><b>Jembatan Paparan Sunda</b><span>Menyatunya benua Asia dan Nusantara saat Zaman Es menciptakan jalur darat alami, mengundang pengembara pertama untuk menjelajah.</span></div>
+            <div class="fact reveal d3"><b>Garis Wallace sebagai Filter Alami</b><span>Lautan dalam di tengah Indonesia memaksa pendatang awal beradaptasi ekstrem, memicu jalur evolusi berbeda antara wilayah barat dan timur.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="meme a" style="left:2%;top:12%"><img src="Is Pinterest just woke Twitter.jpg" alt="Meme"></div>
+      <div class="meme b" style="right:2%;bottom:5%;background:#d5ecff"><img src="crds.jpg" alt="Meme"></div>
+      <div class="meme c" style="left:2%;bottom:5%;background:#dff6e7"><img src="aptu woi.jpg" alt="Meme"></div>
+      <details class="note reveal d4" style="position:absolute;right:5%;bottom:7%;max-width:410px">
+        <summary>Catatan Pembicara</summary>
+        <div class="body">Mengapa tidak ada fosil T-Rex di Indonesia? Karena jutaan tahun lalu, daratan kita belum stabil dan masih berupa laut atau gunung api bawah air. Fakta geologi ini menjadi fondasi Teori Nusantara Modern: kita memang berasal dari pengembara, tetapi pengembara yang pada akhirnya terisolasi dan berevolusi di wilayah ini ketika es mencair.</div>
+      </details>
+    </section>
+
+    <!-- 5 SLIDE 3 (GENETIK) -->
+    <section class="slide">
+      <div class="genetic">
+        <div class="eyebrow reveal d1">Materi 03 · Hibridisasi Multipesies</div>
+        <h2 class="reveal d2">Tuan rumah yang<br><span class="highlight">tidak pernah punah.</span></h2>
+        <p class="lead reveal d3" style="margin-left:auto;margin-right:auto;text-align:center">Gelombang migrasi manusia modern (Homo sapiens) tidak memusnahkan manusia purba asli Nusantara, melainkan hidup berdampingan.</p>
+        <div class="grow">
+          <article class="gcard reveal d1">
+            <div class="gpic"><img src="Homo sapiens.jpg" alt="Homo Sapiens"></div>
+            <h3>Homo sapiens</h3>
+            <p>Pendatang dari luar yang membawa gelombang migrasi, namun tidak berlaku sebagai penjajah.</p>
+          </article>
+          <div class="plus reveal d2">+</div>
+          <article class="gcard reveal d2">
+            <div class="gpic"><img src="denissbeban.jpg" alt="Denisovan"></div>
+            <h3>Manusia Purba Lokal</h3>
+            <p>Masyarakat Timur Nusantara mewarisi persentase DNA manusia purba Denisovan tertinggi di dunia.</p>
+          </article>
+          <div class="plus reveal d3">+</div>
+          <article class="gcard reveal d3">
+            <div class="gpic"><img src="gakadakuota.jpg" alt="Hibridisasi"></div>
+            <h3>Asimilasi Sempurna</h3>
+            <p>Nusantara meleburkan genetik pengembara luar dengan penghuni purba menjadi identitas baru.</p>
+          </article>
+          <div class="arrow-big reveal d4">→</div>
+        </div>
+        <div class="modern reveal d4"><small>BUKTI LAHIRNYA MANUSIA CAMPURAN</small><b>Profil DNA bangsa Indonesia saat ini adalah murni persilangan mutlak antara pendatang dan penghuni purba lokal Nusantara.</b></div>
+        <details class="note reveal d4" style="max-width:750px;margin:14px auto 0;text-align:left">
+          <summary>Catatan Pembicara</summary>
+          <div class="body">Dulu ada anggapan bahwa manusia modern datang dan menghabisi manusia purba primitif di Indonesia. Sains membuktikan sebaliknya. Sebagai "tuan rumah", manusia purba Nusantara tidak lenyap, melainkan kawin silang dengan para pendatang. DNA Denisovan yang sangat tinggi pada penduduk Indonesia Timur adalah bukti nyata bahwa nenek moyang kita adalah bangsa hibrida.</div>
+        </details>
+      </div>
+      <div class="meme a" style="left:2%;top:12%"><img src="jlskanscra.jpg" alt="Meme"></div>
+      <div class="meme b" style="right:2%;top:12%;background:#ffe0db"><img src="download (14).jpg" alt="Meme"></div>
+      <div class="meme c" style="right:2%;bottom:5%;background:#e2f7e7"><img src="jimmy butler wtf.jpg" alt="Meme"></div>
+    </section>
+
+    <!-- 6 SLIDE 4 (CULTURE) -->
+    <section class="slide">
+      <div class="wrap">
+        <div class="member-head">
+          <div><div class="eyebrow reveal d1">Materi 04 · Determinisme Lingkungan</div><h2 class="reveal d2">Alam Nusantara<br><span class="highlight">Mencetak Teknologi.</span></h2></div>
+          <p class="reveal d3">Teknologi perkakas prasejarah kita bukan murni hasil impor budaya luar, melainkan hasil adaptasi mutlak terhadap material lokal.</p>
+        </div>
+        <div class="artifacts">
+          <article class="artifact reveal d1">
+            <div class="art-img"><img src="kapakbatu.jpg" alt="Kapak Pacitan"></div>
+            <h3>Kapak Perimbas Pacitan</h3>
+            <p>Didesain kasar dari batu kali andesit karena bentuk tersebut paling efektif untuk membelah kayu keras di hutan hujan tropis.</p>
+            <span class="tiny-tag">BATU · ADAPTASI</span>
+          </article>
+          <article class="artifact reveal d2">
+            <div class="art-img"><img src="Prehistoria.jpg" alt="Alat Ngandong"></div>
+            <h3>Siasat Lingkungan Ngandong</h3>
+            <p>Keterbatasan batu yang ideal di daerah lembah memicu inovasi alat bantu hidup dari bahan tulang dan tanduk rusa liar.</p>
+            <span class="tiny-tag">TULANG · INOVASI</span>
+          </article>
+          <article class="artifact reveal d3">
+            <div class="art-img"><img src="kjkmondiger.jpg" alt="Kjokkenmoddinger"></div>
+            <h3>Kjokkenmoddinger Pesisir</h3>
+            <p>Tinggal di rawa pesisir dan pantai dengan cepat membentuk teknologi khusus berupa alat pemecah tumpukan kerang laut.</p>
+            <span class="tiny-tag">PESISIR · SIASAT</span>
+          </article>
+        </div>
+        <details class="note reveal d4">
+          <summary>Catatan Pembicara</summary>
+          <div class="body">Secara psikologis, manusia merespons sekitarnya. Saat pengembara membawa budaya kapak dari luar, alam Nusantara memaksa mereka mengubah desainnya. Mereka membuat alat kasar di Pacitan karena itu yang paling cocok di hutan tropis. Di lembah Bengawan Solo yang minim batu, mereka beralih ke tulang. Ini membuktikan bahwa Nusantara bukanlah peniru budaya luar, melainkan pendesain ulang yang cerdas.</div>
+        </details>
+      </div>
+      <div class="meme a" style="left:2%;top:12%"><img src="mnarik.jpg" alt="Meme"></div>
+      <div class="meme b" style="right:2%;bottom:5%;background:#fff0a2"><img src="kokbs.jpg" alt="Meme"></div>
+      <div class="meme c" style="left:2%;bottom:5%;background:#d8efff"><img src="sip.jpg" alt="Meme"></div>
+    </section>
+
+    <!-- 7 SLIDE 5 (FLORES) -->
+    <section class="slide">
+      <div class="flores">
+        <div class="flores-visual reveal d2">
+          <div class="tape" style="left:18px;top:17px;transform:rotate(-5deg); z-index:3;"></div>
+          <div class="flores-label">HOMO FLORESIENSIS · LIANG BUA</div>
+          <img src="homoapalah.jpg" alt="Homo floresiensis">
+        </div>
+        <div>
+          <div class="eyebrow reveal d1">Materi 05 · Evolusi Fisik</div>
+          <h2 class="reveal d2">Nusantara Merombak <span class="highlight">Biologi Manusia.</span></h2>
+          <p class="lead reveal d3">Iklim, isolasi kepulauan, dan ketersediaan sumber daya secara harfiah mampu memicu evolusi fisik pada manusia purba.</p>
+          <div class="timeline2">
+            <div class="t2 reveal d1"><span>LINGKUNGAN</span><div class="bar"><i style="width:36%"></i></div></div>
+            <div class="t2 reveal d2"><span>ISOLASI</span><div class="bar"><i style="width:60%"></i></div></div>
+            <div class="t2 reveal d3"><span>DWARFISME</span><div class="bar"><i style="width:80%"></i></div></div>
+            <div class="t2 reveal d4"><span>BERTAHAN</span><div class="bar"><i style="width:94%"></i></div></div>
+          </div>
+          <div class="callout reveal d4"><b>Dwarfisme Insular:</b> Keterbatasan makanan di pulau terisolasi memaksa tubuh spesies pendatang menyusut drastis untuk bisa bertahan hidup (Kasus "Manusia Hobbit" setinggi 1 meter di Flores).</div>
+          <details class="note reveal d4">
+            <summary>Catatan Pembicara</summary>
+            <div class="body">Inilah bukti fisik terkuat mengapa Teori Nusantara sangat relevan, Alexander. Alam kita tidak hanya memodifikasi alat batu, tetapi mampu merombak cetak biru biologi manusia itu sendiri. Ketika pengembara terjebak di pulau Flores yang minim sumber daya, alam memaksa ukuran tubuh mereka menyusut agar butuh lebih sedikit kalori. Proses pembentukan wujud ini terjadi 100% di dalam wilayah Nusantara.</div>
+          </details>
+        </div>
+      </div>
+      <div class="meme a" style="right:2%;top:12%"><img src="lu sape mpruy_.jpg" alt="Meme"></div>
+      <div class="meme b" style="left:2%;bottom:5%;background:#d8f5e0"><img src="💎⬅️.jpg" alt="Meme"></div>
+      <div class="meme c" style="right:2%;bottom:5%;background:#ffe4a1"><img src="huh.jpg" alt="Meme"></div>
+      <div class="meme" style="left:2%;top:12%;background:#ffdfdf;transform:rotate(3deg)"><img src="download (7).jpg" alt="Meme"></div>
+    </section>
+
+    <!-- 8 SLIDE 6 (CONCLUSION) -->
+    <section class="slide">
+      <div class="conclusion">
+        <div>
+          <div class="eyebrow reveal d1">Kesimpulan · Menjadi Nusantara Seutuhnya</div>
+          <h2 class="reveal d2">Menjadi <span class="highlight">Nusantara</span> seutuhnya.</h2>
+          <div class="theory-ribbons">
+            <div class="ribbon reveal d1"><b>Mengintegrasikan Teori Luar</b> → Rute Afrika, Taiwan, & Yunnan hanya diposisikan sebagai sekadar "bahan baku" migrasi awal.</div>
+            <div class="ribbon reveal d2"><b>Penyempurnaan di Dalam Negeri</b> → Ketahanan fisik, adaptasi alat, dan percampuran DNA diselesaikan mutlak oleh alam Nusantara.</div>
+            <div class="ribbon reveal d3"><b>Identitas yang Ditempa Alam</b> → Kita adalah bangsa yang berhasil dilebur dan dibentuk sepenuhnya oleh kepulauan ini.</div>
+          </div>
+        </div>
+        <div class="conclusion-box reveal d4">
+          <small>IDE UTAMA KELOMPOK</small>
+          <b>Menjadi manusia Indonesia bukanlah tentang "siapa yang muncul dari tanah", melainkan "siapa yang berhasil dilebur oleh alamnya".</b>
+          <div class="caveat">Catatan Pembicara: Teori Nusantara Modern menyerap semua kebenaran dari teori lain. Kita mengakui bahwa materi genetik berasal dari luar. Namun, identitas bangsa Indonesia baru lahir setelah mereka beradaptasi secara ekstrem dan terisolasi di Nusantara.</div>
+        </div>
+      </div>
+      <div class="meme a" style="left:2%;top:12%"><img src="inpoditerima.jpg" alt="Meme"></div>
+      <div class="meme b" style="right:2%;top:12%;background:#d5ecff"><img src="klass.jpg" alt="Meme"></div>
+      <div class="meme c" style="left:2%;bottom:5%;background:#d8f4df"><img src="nah ini.jpg" alt="Meme"></div>
+      <div class="meme" style="right:2%;bottom:5%;transform:rotate(-4deg)"><img src="gkslh.jpg" alt="Meme"></div>
+    </section>
+
+    <!-- 9 CLOSING -->
+    <section class="slide">
+      <div class="end">
+        <div class="end-card reveal d2">
+          <div class="eyebrow">PENUTUP · SLIDE 09</div>
+          <h2>Kita Bukan Hasil<br><span class="highlight">Satu Teori.</span></h2>
+          <div class="thanks">Kami dari <b>The Random Kid · X 2</b>.<br>Terima kasih sudah ikut menyusuri kepingan sejarah bersama kami.</div>
+          <div class="end-actions">
+            <button class="end-btn" id="finish">PRESENTASI SELESAI</button>
+            <button class="end-btn secondary" id="restart">ULANG DARI AWAL</button>
+          </div>
+        </div>
+        <div class="meme finale-meme">
+          <img src="download (12).jpg" alt="Meme Tamat 1">
+        </div>
+        <div class="finale-note reveal d4">
+          Identitas akhir bangsa Indonesia tidak dibawa dalam koper dari Taiwan atau Yunnan. Identitas itu lahir karena kita dilebur oleh hutan tropis, lautan, dan alam Nusantara.
+        </div>
+      </div>
+      <div class="meme a" style="left:2%;top:12%;background:#ffe0dc"><img src="mksh.jpg" alt="Meme"></div>
+      <div class="meme b" style="right:2%;bottom:5%;background:#fff0a6"><img src="download (6).jpg" alt="Meme"></div>
+      <div class="meme c" style="left:2%;bottom:5%;background:#daf4e2"><img src="download (9).jpg" alt="Meme"></div>
+      <div class="confetti" id="confetti"></div>
+    </section>
+  </main>
+
+  <div class="keyboard-hint">← → / SPACE · NEXT &amp; PREVIOUS</div>
+  <div class="nav">
+    <button id="prev" aria-label="Previous">←</button>
+    <button id="next" aria-label="Next">→</button>
+  </div>
+  <div class="progress"><i id="bar"></i></div>
+</div>
+
+<script>
+(() => {
+  const deck=document.getElementById('deck');
+  const slides=[...document.querySelectorAll('.slide')];
+  const num=document.getElementById('num');
+  const bar=document.getElementById('bar');
+  const prev=document.getElementById('prev');
+  const next=document.getElementById('next');
+  let index=0, wheelBusy=false;
+
+  function go(n, fast=false){
+    index=Math.max(0,Math.min(slides.length-1,n));
+    deck.classList.toggle('fast',fast);
+    deck.style.transform=`translate3d(${-index*(100/slides.length)}%,0,0)`;
+    slides.forEach((s,i)=>s.classList.toggle('active',i===index));
+    num.textContent=String(index+1).padStart(2,'0');
+    bar.style.width=`${((index+1)/slides.length)*100}%`;
+    prev.disabled=index===0;
+    next.disabled=index===slides.length-1;
+    document.title=`The Random Kid — Slide ${String(index+1).padStart(2,'0')}`;
+    setTimeout(()=>deck.classList.remove('fast'),20);
+  }
+  function goNext(){if(index<slides.length-1)go(index+1)}
+  function goPrev(){if(index>0)go(index-1)}
+  prev.onclick=goPrev;next.onclick=goNext;
+
+  window.addEventListener('keydown',e=>{
+    if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();goNext()}
+    if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();goPrev()}
+    if(e.key==='Home'){e.preventDefault();go(0)}
+    if(e.key==='End'){e.preventDefault();go(slides.length-1)}
+  });
+  window.addEventListener('wheel',e=>{
+    if(wheelBusy)return;
+    if(Math.abs(e.deltaY)<8 && Math.abs(e.deltaX)<8)return;
+    wheelBusy=true;
+    (e.deltaY>0||e.deltaX>0)?goNext():goPrev();
+    setTimeout(()=>wheelBusy=false,650);
+  },{passive:true});
+
+  let tx=null;
+  window.addEventListener('touchstart',e=>tx=e.changedTouches[0].clientX,{passive:true});
+  window.addEventListener('touchend',e=>{
+    if(tx===null)return;
+    const dx=e.changedTouches[0].clientX-tx;
+    if(Math.abs(dx)>50)(dx<0?goNext:goPrev)();
+    tx=null;
+  },{passive:true});
+
+  /* celebration */
+  const finish=document.getElementById('finish');
+  const restart=document.getElementById('restart');
+  const confetti=document.getElementById('confetti');
+  const colors=['#ff6b5f','#ffd45c','#67b7ff','#78d59b','#b99cff','#25221e','#ffffff'];
+  finish.addEventListener('click',()=>{
+    confetti.innerHTML='';
+    document.querySelector('.end-card').animate(
+      [{transform:'rotate(-1deg) scale(1)'},{transform:'rotate(-1deg) scale(1.035)'},{transform:'rotate(-1deg) scale(1)'}],
+      {duration:900,iterations:2,easing:'ease-in-out'}
+    );
+    for(let i=0;i<90;i++){
+      const p=document.createElement('i');
+      p.style.left=(Math.random()*100)+'%';
+      p.style.background=colors[i%colors.length];
+      p.style.animationDelay=(Math.random()*450)+'ms';
+      p.style.animationDuration=(1500+Math.random()*1000)+'ms';
+      confetti.appendChild(p);
+    }
+  });
+  restart.addEventListener('click',()=>go(0));
+
+  go(0,true);
+})();
+</script>
+</body>
+</html>
